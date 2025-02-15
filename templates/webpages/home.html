@@ -1,0 +1,104 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>HomePage</title>
+    <link rel="stylesheet" href="{% static 'assets/css/sss.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+     <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<nav class="navbar">
+  <div class="nav-logo">
+    <a href="#"><img src="{% static 'assets/img/Facebook_Logo_(2019).png' %}" alt="Logo"></a>
+  </div>
+    <div class="search-bar">
+  <input type="text" placeholder="Search Facebook" />
+  <button type="submit"><i data-lucide="search"></i></button>
+</div>
+ <ul class="nav-links">
+  <li><a href="#"><i data-lucide="home"></i></a></li>
+  <li><a href="#"><i data-lucide="user"></i></a></li>
+  <li><a href="#"><i data-lucide="mail"></i></a></li>
+  <li><a href="#"><i data-lucide="settings"></i></a></li>
+</ul>
+    <ul class="nav-icons-right">
+    <li><a href="#"><i data-lucide="message-square"></i></a></li>
+    <li><a href="#"><i data-lucide="bell"></i></a></li>
+    <li><a href="#"><i data-lucide="menu"></i></a></li>
+  </ul>
+{#  <div class="nav-button">#}
+{#    <button>Log Out</button>#}
+{#  </div>#}
+</nav>
+<body>
+<!-- Left Sidebar -->
+<div class="left-sidebar">
+  <div class="profile-section" style="display: flex; align-items: center;">
+    <img src="profile-pic.jpg" alt="Profile Picture" class="profile-pic">
+    <h4>Seun</h4>
+  </div>
+  <ul class="sidebar-links">
+  <li><i data-lucide="users"></i> <span style="font-weight: bold;">Friends</span></li>
+    <li><i data-lucide="clock"></i> <span style="font-weight: bold;">Memories</span></li>
+    <li><i data-lucide="bookmark"></i> <span style="font-weight: bold;">Saved</span></li>
+    <li><i data-lucide="layers"></i> <span style="font-weight: bold;">Groups</span></li>
+    <li><i data-lucide="video"></i> <span style="font-weight: bold;">Video</span></li>
+    <li><i data-lucide="shopping-cart"></i> <span style="font-weight: bold;">Marketplace</span></li>
+    <li><i data-lucide="rss"></i> <span style="font-weight: bold;">Feeds</span></li>
+    <li><i data-lucide="calendar"></i> <span style="font-weight: bold;">Events</span></li>
+    <li><i data-lucide="activity"></i> <span style="font-weight: bold;">Ads Manager</span></li>
+    <div id="more-items" style="display: none;">
+      <li><i data-lucide="gift"></i> <span style="font-weight: bold;">Birthdays</span></li>
+      <li><i data-lucide="cloud"></i> <span style="font-weight: bold;">Climate Science Center</span></li>
+      <li><i data-lucide="heart"></i> <span style="font-weight: bold;">Fundraisers</span></li>
+      <li><i data-lucide="gamepad"></i> <span style="font-weight: bold;">Gaming Video</span></li>
+      <li><i data-lucide="message-circle"></i> <span style="font-weight: bold;">Messenger</span></li>
+      <li><i data-lucide="smile"></i> <span style="font-weight: bold;">Messenger Kids</span></li>
+      <li><i data-lucide="credit-card"></i> <span style="font-weight: bold;">Orders and Payments</span></li>
+      <li><i data-lucide="star"></i> <span style="font-weight: bold;">Pages</span></li>
+      <li><i data-lucide="play"></i> <span style="font-weight: bold;">Play Games</span></li>
+      <li><i data-lucide="trending-up"></i> <span style="font-weight: bold;">Recent Ad Activity</span></li>
+      <li><i data-lucide="film"></i> <span style="font-weight: bold;">Reels</span></li>
+    </div>
+       <li class="toggle-button" style="cursor: pointer; font-weight: bold; color: #1877f2;">Show More</li>
+  </ul>
+</div>
+<!-- Right Sidebar HTML -->
+<div class="right-sidebar">
+  <div class="sponsored-section">
+    <h3 class="section-header">Sponsored</h3>
+    <div class="sponsored-item">
+      <img src="sponsor1.jpg" alt="Sponsor 1">
+      <span>Awesome Product</span>
+    </div>
+    <div class="sponsored-item">
+      <img src="sponsor2.jpg" alt="Sponsor 2">
+      <span>Great Service</span>
+    </div>
+  </div>
+
+  <div class="contacts-section">
+    <h3 class="section-header">Contacts</h3>
+    <ul class="contacts-list">
+      <li><img src="user1.jpg" alt="User 1"><span>Jane Doe</span></li>
+      <li><img src="user2.jpg" alt="User 2"><span>John Smith</span></li>
+      <li><img src="user3.jpg" alt="User 3"><span>Chris Johnson</span></li>
+    </ul>
+  </div>
+
+  <div class="group-chats-section">
+    <h3 class="section-header">Group Chats</h3>
+    <ul class="group-chats-list">
+      <li><img src="group1.jpg" alt="Group 1"><span>Developers Hub</span></li>
+      <li><img src="group2.jpg" alt="Group 2"><span>Gaming Crew</span></li>
+      <li><img src="group3.jpg" alt="Group 3"><span>Book Club</span></li>
+    </ul>
+  </div>
+</div>
+</body>
+<script>lucide.createIcons();</script>
+<script>var loginpage = "{% url 'login' %}";</script>
+<script src="{% static 'assets/js/sidebar.js' %}"></script>
+<script src="{% static 'assets/js/homepage.js' %}"></script>
+</html>

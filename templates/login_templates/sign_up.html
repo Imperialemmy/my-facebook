@@ -1,0 +1,153 @@
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Signup</title>
+	<link rel="stylesheet" href="{%  static 'assets/css/sign_up.css' %}" />
+</head>
+<body>
+	<!-- navbar -->
+	<div class="nav">
+		<div class="inner mg">
+			<!-- logo area -->
+			<div class="logo">
+				<img src="https://i.imgur.com/HTTU3R6.png">
+			</div>
+			<!-- login area -->
+			<table class="table">
+				<tr>
+					<td>Email or Phone</td>
+					<td>Password</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td><input id="lg"></td>
+					<td><input  type="Password" id="lg"></td>
+					<td><input type="submit" value="Log in" onclick="loginUser()"></td>
+				</tr>
+				<tr>
+					<td></td>
+					<td><a href="reset.html">Forgotten account?</a></td>
+					<td></td>
+				</tr>
+			</table>
+		</div>
+	</div> <!-- end navigation -->
+	<!-- main page area -->
+	<div class="main mg">
+		<div class="left">
+			<h3>Facebook helps you connect and share with the people in your life.</h3>
+			<img id="cimg" src="https://i.imgur.com/p4acFUi.png">
+		</div>
+		<!-- signup form -->
+		<div class="right">
+			<h1>Sign Up</h1>
+			<p><strong class="strong">Developed By<aj> Ahmer Jutt</aj></strong></p>
+			<input type="text" id="first-name" placeholder="First name">
+			<input type="text" id="last-name" placeholder="last name">
+            <input type="text" id="username" placeholder="Username">
+			<input type="text" id="email" placeholder="Email">
+			<input type="password" id="password" placeholder="Password">
+			<div class="birth_area"><br>
+			<table class="birth">
+				<tr>
+					<td><strong>Birthday</strong></td>
+				</tr>
+				<tr>
+					<td class="wdth">
+						<select class="pd_birth">
+							<option hidden="">Month</option>
+							<option>Jan</option>
+							<option>Fab</option>
+							<option>Mar</option>
+							<option>Apr</option>
+							<option>May</option>
+							<option>Jun</option>
+							<option>Jul</option>
+							<option>Aug</option>
+							<option>Sep</option>
+							<option>Nov</option>
+							<option>Dec</option>
+						</select>
+						<select class="pd_birth">
+							<option>1</option>
+							<option>2</option>
+							<option>3</option>
+							<option>4</option>
+							<option>5</option>
+							<option>6</option>
+							<option>7</option>
+							<option>8</option>
+							<option>9</option>
+							<option>10</option>
+							<option>11</option>
+							<option>12</option>
+							<option>13</option>
+							<option>14</option>
+							<option>15</option>
+							<option>16</option>
+							<option>17</option>
+							<option>18</option>
+							<option>19</option>
+							<option>20</option>
+							<option>21</option>
+							<option>22</option>
+							<option>23</option>
+							<option>24</option>
+							<option>25</option>
+							<option>26</option>
+							<option>27</option>
+							<option>28</option>
+							<option>29</option>
+							<option>30</option>
+							<option>31</option>
+						</select>
+						<select class="pd_birth">
+							<option>2018</option>
+							<option>2017</option>
+							<option>2016</option>
+							<option>2015</option>
+							<option>2014</option>
+							<option>2013</option>
+							<option>2012</option>
+							<option>2011</option>
+							<option>2010</option>
+							<option>2009</option>
+							<option>2008</option>
+							<option>2007</option>
+							<option>2006</option>
+							<option>2005</option>
+							<option>2004</option>
+							<option>2003</option>
+							<option>2002</option>
+							<option>2001</option>
+							<option>2000</option>
+						</select>
+					</td>
+					<td class="info_birth">
+						<div class="a_box">
+							<a id="w_a" class="wid2">Why do I need to provide my birthday?</a><br><br>
+							<div class="a_cont">
+								<p><b>Providing your birthday</b> helps make sure you get the right Facebook experience for your age. If you want to change who sees this, go to the About section of your profile. For more details, please visit our <a id="dp">Data Policy</a>.</p>
+								<hr>
+								<button class="b_ok">Okay</button>
+							</div>
+						</div>
+					</td>
+				</tr>
+			</table><br>
+			</div>
+			<label><input type="radio" id = "male" name="one">Female</label>
+			<label><input type="radio" id = "female" name="one">Male</label>
+			<p class="fs_14">By clicking Sign Up, you agree to our <a href="">Terms</a>, <a href="">Data Policy</a> and <a href="">Cookies Policy</a>. You may receive SMS Notifications from us and can opt out any time</p>
+			<input type="submit" value="Sign Up" onclick="signupUser()" /><hr><br>
+			<a href="" id="cp">create a page</a> for your business
+		</div>
+	</div>
+</body>
+<script>var signupRedirectUrl = "{% url 'login' %}";</script>
+<script>var loginRedirectUrl = "{% url 'home' %}";</script>
+<script src="{% static 'assets/js/sign_up.js' %}" defer></script>
+</html>
