@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
      <script src="https://unpkg.com/lucide@latest"></script>
 </head>
+<div class="body">
 <nav class="navbar">
   <div class="nav-logo">
     <a href="#"><img src="{% static 'assets/img/Facebook_Logo_(2019).png' %}" alt="Logo"></a>
@@ -31,12 +32,12 @@
 {#    <button>Log Out</button>#}
 {#  </div>#}
 </nav>
-<body>
+<div>
 <!-- Left Sidebar -->
 <div class="left-sidebar">
   <div class="profile-section" style="display: flex; align-items: center;">
     <img src="profile-pic.jpg" alt="Profile Picture" class="profile-pic">
-    <h4>Seun</h4>
+   <h4 id="username-display"></h4>
   </div>
   <ul class="sidebar-links">
   <li><i data-lucide="users"></i> <span style="font-weight: bold;">Friends</span></li>
@@ -96,9 +97,19 @@
     </ul>
   </div>
 </div>
+    <!-- Main Feed HTML -->
+<div class="main-feed">
+  <div class="post-box">
+    <textarea placeholder="What's on your mind, Seun?"></textarea>
+    <button class="post-button">Post</button>
+  </div>
+    <div id="feed-container"></div>
+  </div>
+</div>
 </body>
 <script>lucide.createIcons();</script>
 <script>var loginpage = "{% url 'login' %}";</script>
 <script src="{% static 'assets/js/sidebar.js' %}"></script>
 <script src="{% static 'assets/js/homepage.js' %}"></script>
+<script src="{% static 'assets/js/posts.js' %}"></script>
 </html>

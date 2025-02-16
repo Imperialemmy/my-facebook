@@ -1,3 +1,9 @@
+.body{
+  background-color: #f0f2f5;
+}
+
+
+
 /*Navbar*/
 .navbar {
   display: flex;
@@ -5,7 +11,7 @@
   align-items: center;
   padding: 1px;
   background-color: white;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Adds a light shadow */
+  /*box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); !* Adds a light shadow *!*/
   border-bottom: 1px solid #e0e0e0; /* Adds a light line */
 }
 
@@ -119,7 +125,7 @@ i[data-lucide] {
   left: 0;
   top: 90px;
   overflow-y: auto;
-  box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+  /*box-shadow: 2px 0 5px rgba(0,0,0,0.1);*/
 }
 .profile-section {
   display:flex;
@@ -169,10 +175,10 @@ i[data-lucide] {
   background-color: #f0f2f5;
   padding: 20px;
   height: 100vh;
-  box-shadow: -2px 0 5px rgba(0,0,0,0.1);
+  /*box-shadow: -2px 0 5px rgba(0,0,0,0.1);*/
   position: absolute;
   right: 0;
-  top: 88px; /* Adjusted top to shift down */
+  top: 83px; /* Adjusted top to shift down */
   font-family: Segoe UI Historic, Segoe UI, Helvetica, Arial, sans-serif;
 }
 
@@ -237,6 +243,114 @@ i[data-lucide] {
   font-size: 14px;
   font-weight: 500;
 }
+
+
+/* Main Feed CSS */
+.main-feed {
+  flex: 2;
+  margin: -998px auto 0 auto;
+  padding: 20px;
+  background-color: #f0f2f5;
+  border-radius: 10px;
+  max-width: 550px; /* Set a max width for the main feed */
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+   height: 100vh;
+    overflow-y: auto;
+
+}
+
+
+
+.post-box {
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  margin-bottom: 20px;
+
+}
+.post-box textarea {
+  resize: none;
+  border: 0px solid #ddd;
+  /*border-radius: 5px;*/
+  /*padding: 10px;*/
+  margin-bottom: 5px;
+  font-family: Segoe UI Historic, Segoe UI, Helvetica, Arial, sans-serif;
+  font-size: 17px;
+  display: flex;
+  align-items: center;
+  background-color: #f0f2f5;
+  border-radius: 20px;
+  padding: 0px 10px;
+  width: 500px;
+
+}
+.post-button {
+  align-self: center;
+  padding: 8px 16px;
+  background-color: #1877f2;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+
+}
+
+.feed-post {
+  background-color: white;
+  padding: 15px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+.post-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.post-header img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+.username {
+  font-weight: bold;
+  font-family: Segoe UI Historic, Segoe UI, Helvetica, Arial, sans-serif;
+
+}
+.timestamp {
+  font-size: 12px;
+  color: #666;
+  font-family: Segoe UI Historic, Segoe UI, Helvetica, Arial, sans-serif;
+}
+.post-content p {
+  margin: 10px 0;
+}
+.post-content img {
+  width: 100%;
+  border-radius: 5px;
+  margin-top: 10px;
+}
+.post-actions {
+  display: flex;
+  justify-content: space-around;
+  padding-top: 10px;
+
+}
+.post-actions button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #1877f2;
+  font-weight: bold;
+}
+
+
 
 
 

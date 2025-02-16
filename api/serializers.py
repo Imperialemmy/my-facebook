@@ -72,10 +72,11 @@ class PostSerializer(serializers.ModelSerializer):
     post_videos = PostVideoSerializer(many=True, read_only=True)  # Nested serializer for existing videos
     uploaded_images = serializers.ListField(child=serializers.ImageField(max_length=100, allow_empty_file=False, use_url=False), write_only=True, required=False)
     uploaded_videos = serializers.ListField(child=serializers.ImageField(max_length=100, allow_empty_file=False, use_url=False), write_only=True,required=False)
+    username = serializers.CharField(source='user.username', read_only=True)
 
     class Meta:
         model = Post
-        fields = ['id', 'user', 'content', 'privacy', 'shared_from', 'tagged_users', 'created_at', 'updated_at', 'post_images', 'post_videos', 'uploaded_images', 'uploaded_videos', 'likes']
+        fields = ['id', 'user', 'username', 'content', 'privacy', 'shared_from', 'tagged_users', 'created_at', 'updated_at', 'post_images', 'post_videos', 'uploaded_images', 'uploaded_videos', 'likes']
         read_only_fields = ["user", "created_at", "updated_at", "likes"]
 
     def create(self, validated_data):

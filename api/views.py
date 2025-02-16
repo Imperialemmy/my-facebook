@@ -10,6 +10,15 @@ from rest_framework import status
 from rest_framework.parsers import MultiPartParser, FormParser
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.generics import ListAPIView
+from rest_framework.pagination import PageNumberPagination
+
+
+
+class CustomPaginationForPosts(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = 'page_size'
+    max_page_size = 100
+
 
 
 class UsersViewSet(ModelViewSet):
@@ -83,10 +92,11 @@ class FriendRequestViewSet(ModelViewSet):
 
 
 class PostViewset(ModelViewSet):
-    queryset = Post.objects.all().order_by('-created_at')
+    queryset = Post.objects.order_by('?')
     serializer_class = PostSerializer
     permission_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend]
+    pagination_class = CustomPaginationForPosts
     filterset_fields = {
         'privacy': ['exact'],
     }
