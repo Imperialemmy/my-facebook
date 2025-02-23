@@ -2,14 +2,14 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated
 from users.models import CustomUser, Work, Education, FriendRequest
 from posts.models import Post, PostImage, PostVideo, Stories, Comments, Like
-from .serializers import CustomUserSerializer, WorkSerializer, EducationSerializer, FriendRequestSerializer, PostSerializer, StoriesSerializer, CommentsSerializer, LikeSerializer,FriendListSerializer
+from messaging.models import Conversation, Message
+from .serializers import CustomUserSerializer, WorkSerializer, EducationSerializer, FriendRequestSerializer, PostSerializer, StoriesSerializer, CommentsSerializer, LikeSerializer,FriendListSerializer, MessageSerializer, ConversationSerializer
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from django.shortcuts import get_object_or_404
-from rest_framework import status
-from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.generics import ListAPIView
+from rest_framework.generics import ListAPIView, ListCreateAPIView
 from rest_framework.pagination import PageNumberPagination
 
 
@@ -148,7 +148,25 @@ class CommentsViewSet(ModelViewSet):
     queryset = Comments.objects.all()
     serializer_class = CommentsSerializer
     permission_classes = [IsAuthenticated]
-    parser_classes = [MultiPartParser, FormParser]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
+
+    def get_queryset(self):
+        return Comments.objects.filter(post=self.kwargs['post_pk'])
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        post_pk = self.kwargs['post_pk']
+
+        try:
+            post = Post.objects.get(pk=post_pk)
+        except Post.DoesNotExist:
+            return Response({"error": "Recipe not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer.save(post=post, user=request.user)
+        # serializer.save(recipe=recipe)#Without user auth
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     def destroy(self, request, *args, **kwargs):
         comment = self.get_object()
@@ -194,3 +212,31 @@ class FriendListView(ListAPIView):
     def get_queryset(self):
         """Return friend requests received by the logged-in user."""
         return CustomUser.objects.filter(friends=self.request.user)
+
+
+
+# Chat view
+class ConversationListView(ListCreateAPIView):
+    serializer_class = ConversationSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Conversation.objects.filter(participants=self.request.user)
+
+    def perform_create(self, serializer):
+        conversation = serializer.save()
+        conversation.participants.add(self.request.user)  # Add user to conversation
+        return Response(serializer.data)
+
+
+class MessageListView(ListCreateAPIView):
+    serializer_class = MessageSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        conversation_id = self.kwargs['conversation_id']
+        return Message.objects.filter(conversation_id=conversation_id).order_by('timestamp')
+
+    def perform_create(self, serializer):
+        conversation = get_object_or_404(Conversation, id=self.kwargs['conversation_id'])
+        serializer.save(sender=self.request.user, conversation=conversation)

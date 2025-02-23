@@ -4,10 +4,15 @@
 <head>
     <meta charset="UTF-8">
     <title>HomePage</title>
-    <link rel="stylesheet" href="{% static 'assets/css/sss.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/new.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
      <script src="https://unpkg.com/lucide@latest"></script>
 </head>
+<body>
+<div id="preloader">
+  <img src="{% static 'assets/img/Facebook_Logo_(2019).png' %}" alt="Loading..." />
+</div>
+<div id="content" style="display: none;">
 <div class="body">
 <nav class="navbar">
   <div class="nav-logo">
@@ -106,10 +111,15 @@
     <div id="feed-container"></div>
   </div>
 </div>
+</div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/jwt-decode/build/jwt-decode.min.js"></script>
 </body>
 <script>lucide.createIcons();</script>
 <script>var loginpage = "{% url 'login' %}";</script>
 <script src="{% static 'assets/js/sidebar.js' %}"></script>
 <script src="{% static 'assets/js/homepage.js' %}"></script>
 <script src="{% static 'assets/js/posts.js' %}"></script>
+<script src="{% static 'assets/js/comments.js' %}"></script>
+<script src="{% static 'assets/js/preloader.js' %}"></script>
 </html>

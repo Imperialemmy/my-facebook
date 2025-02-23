@@ -1,5 +1,6 @@
 from users.models import CustomUser, Work, Education, FriendRequest
 from posts.models import Post, PostImage, PostVideo, Stories, Comments, Like
+from messaging.models import Conversation, Message
 from rest_framework import serializers
 
 class LikeSerializer(serializers.ModelSerializer):
@@ -131,13 +132,39 @@ class StoriesSerializer(serializers.ModelSerializer):
 
 class CommentsSerializer(serializers.ModelSerializer):
     likes = LikeSerializer(many=True, read_only=True)
+    username = serializers.CharField(source='user.username', read_only=True)
     class Meta:
         model = Comments
-        fields = ['id', 'user', 'post', 'content', 'image', 'video', 'created_at', 'updated_at', 'likes']
+        fields = ['id', 'user', 'username', 'post', 'content', 'image', 'video', 'created_at', 'updated_at', 'likes']
         read_only_fields = ["user", "post", "created_at", "updated_at"]
+
+    # def create(self, validated_data):
+    #     likes = validated_data.pop('likes', [])
+    #     comment = Comments.objects.create(user=self.context['request'].user, **validated_data)
+    #     comment.likes.set(likes)
+    #     return comment
 
 
 class FriendListSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ['id' ,'friends']
+
+
+# Chat Serializers
+
+class MessageSerializer(serializers.ModelSerializer):
+    sender = serializers.StringRelatedField()  # Display sender username instead of ID
+
+    class Meta:
+        model = Message
+        fields = ['id', 'conversation', 'sender', 'content', 'timestamp']
+        read_only_fields = ['id', 'sender', 'timestamp']
+
+
+class ConversationSerializer(serializers.ModelSerializer):
+    messages = MessageSerializer(many=True, read_only=True)  # Nest messages inside conversation
+
+    class Meta:
+        model = Conversation
+        fields = ['id', 'participants', 'messages', 'created_at']

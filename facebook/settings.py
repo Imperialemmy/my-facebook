@@ -13,8 +13,11 @@ import os
 from pathlib import Path
 from datetime import timedelta
 
+
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
 
 
 # Quick-start development settings - unsuitable for production
@@ -46,6 +49,8 @@ INSTALLED_APPS = [
     'django_filters',
     'core',
     'corsheaders',
+    'channels',
+    'messaging',
 ]
 
 MIDDLEWARE = [
@@ -170,3 +175,15 @@ DJOSER = {
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+ASGI_APPLICATION = "facebook.asgi.application"
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],  # Ensure Redis is running locally
+        },
+    },
+}
+

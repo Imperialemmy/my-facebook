@@ -125,7 +125,8 @@ i[data-lucide] {
   left: 0;
   top: 90px;
   overflow-y: auto;
-  /*box-shadow: 2px 0 5px rgba(0,0,0,0.1);*/
+  position: relative;
+  flex: 0 0 250px; /* Fixed width */
 }
 .profile-section {
   display:flex;

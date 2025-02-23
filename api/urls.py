@@ -1,7 +1,7 @@
 from django.urls import include, path
 from rest_framework import routers
 from .views import UsersViewSet, WorkViewSet, EducationViewSet, FriendRequestViewSet, PostViewset, StoriesViewSet, \
-    CommentsViewSet, LikeViewSet, FriendListView
+    CommentsViewSet, LikeViewSet, FriendListView, ConversationListView, MessageListView
 from rest_framework_nested import routers
 router = routers.DefaultRouter()
 router.register(r"users", UsersViewSet)
@@ -26,6 +26,8 @@ urlpatterns = [
     path(r'', include(likes_router.urls)),
     path(r'', include(router.urls)),
     path('friends/', FriendListView.as_view(), name='friends'),
+    path('conversations/', ConversationListView.as_view(), name='conversation-list'),
+    path('conversations/<int:conversation_id>/messages/', MessageListView.as_view(), name='message-list'),
 ]
 
 
