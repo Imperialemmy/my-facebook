@@ -1,7 +1,10 @@
 from users.models import CustomUser, Work, Education, FriendRequest
 from posts.models import Post, PostImage, PostVideo, Stories, Comments, Like
-from messaging.models import Conversation, Message
+from messaging.models import Conversation, Message, MessageMedia
 from rest_framework import serializers
+
+
+
 
 class LikeSerializer(serializers.ModelSerializer):
     class Meta:
@@ -17,6 +20,11 @@ class PostVideoSerializer(serializers.ModelSerializer):
     class Meta:
         model = PostVideo
         fields = ['post_video', 'video']
+
+class MessageMediaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MessageMedia
+        fields = ["file"]
 
 
 class WorkSerializer(serializers.ModelSerializer):
@@ -155,11 +163,22 @@ class FriendListSerializer(serializers.ModelSerializer):
 
 class MessageSerializer(serializers.ModelSerializer):
     sender = serializers.StringRelatedField()  # Display sender username instead of ID
+    media_files = MessageMediaSerializer(many=True, required=False)
+    uploaded_files = serializers.ListField(child=serializers.ImageField(max_length=100, allow_empty_file=False, use_url=False), write_only=True, required=False)
 
     class Meta:
         model = Message
-        fields = ['id', 'conversation', 'sender', 'content', 'timestamp']
-        read_only_fields = ['id', 'sender', 'timestamp']
+        fields = ['id', 'conversation', 'sender', 'content', 'timestamp', 'media_files', 'uploaded_files']
+        read_only_fields = ['id', 'sender', 'timestamp', 'media_files']
+
+    def create(self, validated_data):
+        uploaded_files = validated_data.pop("uploaded_files", [])
+        message = Message.objects.create(**validated_data)
+
+        for media in uploaded_files:
+            MessageMedia.objects.create(message=message, file=media["file"])
+
+        return message
 
 
 class ConversationSerializer(serializers.ModelSerializer):

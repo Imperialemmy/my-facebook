@@ -1,3 +1,4 @@
+from rest_framework import status
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated
 from users.models import CustomUser, Work, Education, FriendRequest
@@ -5,19 +6,15 @@ from posts.models import Post, PostImage, PostVideo, Stories, Comments, Like
 from messaging.models import Conversation, Message
 from .serializers import CustomUserSerializer, WorkSerializer, EducationSerializer, FriendRequestSerializer, PostSerializer, StoriesSerializer, CommentsSerializer, LikeSerializer,FriendListSerializer, MessageSerializer, ConversationSerializer
 from rest_framework.response import Response
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view
 from django.shortcuts import get_object_or_404
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.generics import ListAPIView, ListCreateAPIView
-from rest_framework.pagination import PageNumberPagination
+from .pagination import CustomPaginationForPosts,ChatPagination
 
 
 
-class CustomPaginationForPosts(PageNumberPagination):
-    page_size = 10
-    page_size_query_param = 'page_size'
-    max_page_size = 100
 
 
 
@@ -215,28 +212,64 @@ class FriendListView(ListAPIView):
 
 
 
+
+
 # Chat view
-class ConversationListView(ListCreateAPIView):
+class ConversationView(ModelViewSet):
     serializer_class = ConversationSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
+        """Fetch all conversations where the logged-in user is a participant"""
         return Conversation.objects.filter(participants=self.request.user)
 
     def perform_create(self, serializer):
-        conversation = serializer.save()
-        conversation.participants.add(self.request.user)  # Add user to conversation
-        return Response(serializer.data)
+        """Ensure two users are added when creating a conversation"""
+        user1 = self.request.user
+        user2_id = self.request.data.get("user2")
+
+        if not user2_id:
+            return Response({"error": "user2 is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user2 = CustomUser.objects.get(id=user2_id)
+        except CustomUser.DoesNotExist:
+            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        # Check if conversation already exists
+        conversation = Conversation.objects.filter(participants=user1).filter(participants=user2).first()
+
+        if not conversation:
+            conversation = serializer.save()
+            conversation.participants.add(user1, user2)
+
+        return Response(ConversationSerializer(conversation).data, status=status.HTTP_201_CREATED)
+
+    def destroy(self, request, *args, **kwargs):
+        conversation = self.get_object()
+        if request.user not in conversation.participants.all():
+            return Response({"error": "You are not a participant in this conversation"}, status=status.HTTP_403_FORBIDDEN)
+
+        conversation.delete()
+        return Response({"message": "Conversation deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
 
 
-class MessageListView(ListCreateAPIView):
+
+class MessageHistory(ListAPIView):
     serializer_class = MessageSerializer
+    parser_classes = (MultiPartParser, FormParser)
     permission_classes = [IsAuthenticated]
+    pagination_class = ChatPagination
 
     def get_queryset(self):
-        conversation_id = self.kwargs['conversation_id']
-        return Message.objects.filter(conversation_id=conversation_id).order_by('timestamp')
+        try:
+            conversation_id = self.kwargs['conversation_id']
+            return Message.objects.filter(conversation_id=conversation_id).order_by('timestamp')
+        except Message.DoesNotExist:
+            return Response({"error": "Message not found"}, status=404)
 
-    def perform_create(self, serializer):
-        conversation = get_object_or_404(Conversation, id=self.kwargs['conversation_id'])
-        serializer.save(sender=self.request.user, conversation=conversation)
+
+
+
+
+
