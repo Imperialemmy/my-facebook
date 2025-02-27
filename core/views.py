@@ -16,4 +16,7 @@ def signup(request):
 def home(request):
     return render(request, 'webpages/home.html')
 
+def watch(request):
+    return render(request, 'webpages/video.html')
+
 

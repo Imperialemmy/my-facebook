@@ -1,0 +1,70 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>HomePage</title>
+    <link rel="stylesheet" href="{% static 'assets/css/new.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+     <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+<div id="preloader">
+  <img src="{% static 'assets/img/Facebook_Logo_(2019).png' %}" alt="Loading..." />
+</div>
+<div id="content" style="display: none;">
+<div class="body">
+<nav class="navbar">
+  <div class="nav-logo">
+    <a href="#"><img src="{% static 'assets/img/Facebook_Logo_(2019).png' %}" alt="Logo"></a>
+  </div>
+    <div class="search-bar">
+  <input type="text" placeholder="Search Facebook" />
+  <button type="submit"><i data-lucide="search"></i></button>
+</div>
+ <ul class="nav-links">
+  <li><a href="#"><i data-lucide="home"></i></a></li>
+  <li><a href="#"><i data-lucide="video"></i></a></li>
+  <li><a href="#"><i data-lucide="mail"></i></a></li>
+  <li><a href="#"><i data-lucide="settings"></i></a></li>
+</ul>
+    <ul class="nav-icons-right">
+    <li><a href="#"><i data-lucide="message-square"></i></a></li>
+    <li><a href="#"><i data-lucide="bell"></i></a></li>
+    <li><a href="#"><i data-lucide="menu"></i></a></li>
+  </ul>
+{#  <div class="nav-button">#}
+{#    <button>Log Out</button>#}
+{#  </div>#}
+</nav>
+<div>
+<!-- Left Sidebar -->
+<div class="left-sidebar">
+  <div class="profile-section" style="display: flex; align-items: center;">
+    <img src="profile-pic.jpg" alt="Profile Picture" class="profile-pic">
+   <h4 id="username-display"></h4>
+  </div>
+  <ul class="sidebar-links">
+  <li><i data-lucide="users"></i> <span style="font-weight: bold;">Friends</span></li>
+    <li><i data-lucide="clock"></i> <span style="font-weight: bold;">Memories</span></li>
+    <li><i data-lucide="bookmark"></i> <span style="font-weight: bold;">Saved</span></li>
+    <li><i data-lucide="layers"></i> <span style="font-weight: bold;">Groups</span></li>
+    <li><i data-lucide="video"></i> <span style="font-weight: bold;">Video</span></li>
+    <li><i data-lucide="shopping-cart"></i> <span style="font-weight: bold;">Marketplace</span></li>
+  </ul>
+</div>
+    <!-- Main Feed HTML -->
+<div class="main-feed"></div>
+</div>
+</div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/jwt-decode/build/jwt-decode.min.js"></script>
+</body>
+<script>lucide.createIcons();</script>
+<script>var loginpage = "{% url 'login' %}";</script>
+<script src="{% static 'assets/js/sidebar.js' %}"></script>
+<script src="{% static 'assets/js/homepage.js' %}"></script>
+<script src="{% static 'assets/js/posts.js' %}"></script>
+<script src="{% static 'assets/js/comments.js' %}"></script>
+<script src="{% static 'assets/js/preloader.js' %}"></script>
+</html>
