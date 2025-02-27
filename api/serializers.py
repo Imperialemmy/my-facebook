@@ -21,10 +21,11 @@ class PostVideoSerializer(serializers.ModelSerializer):
         model = PostVideo
         fields = ['post_video', 'video']
 
+
 class MessageMediaSerializer(serializers.ModelSerializer):
     class Meta:
         model = MessageMedia
-        fields = ["file"]
+        fields = ["message", "file"]
 
 
 class WorkSerializer(serializers.ModelSerializer):
@@ -118,7 +119,7 @@ class StoriesSerializer(serializers.ModelSerializer):
     post_images = PostImageSerializer(many=True, read_only=True)  # Nested serializer for existing images
     post_videos = PostVideoSerializer(many=True, read_only=True)  # Nested serializer for existing videos
     uploaded_images = serializers.ListField(child=serializers.ImageField(max_length=100, allow_empty_file=False, use_url=False), write_only=True, required=False)
-    uploaded_videos = serializers.ListField(child=serializers.ImageField(max_length=100, allow_empty_file=False, use_url=False), write_only=True, required=False)
+    uploaded_videos = serializers.ListField(child=serializers.FileField(max_length=100, allow_empty_file=False, use_url=False), write_only=True, required=False)
     likes = LikeSerializer(many=True, read_only=True)
     class Meta:
         model = Stories
@@ -160,25 +161,43 @@ class FriendListSerializer(serializers.ModelSerializer):
 
 
 # Chat Serializers
+class MessageMediaUploadSerializer(serializers.ModelSerializer):
+    uploaded_file = serializers.ListField(
+        child=serializers.FileField(max_length=100, allow_empty_file=False, use_url=False),
+        write_only=True,
+        required=False
+    )
+
+    class Meta:
+        model = MessageMedia
+        fields = ["id", "message", "file", "uploaded_file"]
+
+def create(self, validated_data):
+    uploaded_files = validated_data.pop('uploaded_file', [])
+    message_id = self.context['request'].data.get("message")  # Gets message as string
+
+    try:
+        message_id = int(message_id)  # ✅ Convert message to integer
+        message = Message.objects.get(id=message_id)  # ✅ Ensure message exists
+    except (ValueError, TypeError):
+        raise serializers.ValidationError({"message": "Message ID must be an integer."})
+    except Message.DoesNotExist:
+        raise serializers.ValidationError({"message": "Message ID is invalid."})
+
+    media_objects = [MessageMedia(message=message, file=file) for file in uploaded_files]
+    return MessageMedia.objects.bulk_create(media_objects)
+
+
 
 class MessageSerializer(serializers.ModelSerializer):
     sender = serializers.StringRelatedField()  # Display sender username instead of ID
     media_files = MessageMediaSerializer(many=True, required=False)
-    uploaded_files = serializers.ListField(child=serializers.ImageField(max_length=100, allow_empty_file=False, use_url=False), write_only=True, required=False)
 
     class Meta:
         model = Message
-        fields = ['id', 'conversation', 'sender', 'content', 'timestamp', 'media_files', 'uploaded_files']
+        fields = ['id', 'conversation', 'sender', 'content', 'timestamp', 'is_read', 'media_files']
         read_only_fields = ['id', 'sender', 'timestamp', 'media_files']
 
-    def create(self, validated_data):
-        uploaded_files = validated_data.pop("uploaded_files", [])
-        message = Message.objects.create(**validated_data)
-
-        for media in uploaded_files:
-            MessageMedia.objects.create(message=message, file=media["file"])
-
-        return message
 
 
 class ConversationSerializer(serializers.ModelSerializer):

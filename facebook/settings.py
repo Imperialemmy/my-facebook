@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'channels',
     'messaging',
+    'daphne',
 ]
 
 MIDDLEWARE = [

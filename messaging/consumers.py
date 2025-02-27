@@ -1,68 +1,121 @@
 import json
+
+from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
-from django.core.files.base import ContentFile
-import base64
 from asgiref.sync import sync_to_async
-from messaging.models import Message, Conversation, MessageMedia  # Import your Message model
 from users.models import CustomUser
+from .models import Message, MessageMedia, Conversation
 
 
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        self.room_name = self.scope['url_route']['kwargs']['room_name']
-        self.room_group_name = f'chat_{self.room_name}'
+        """Handles WebSocket connection"""
+        self.room_name = self.scope["url_route"]["kwargs"]["room_name"]
+        self.room_group_name = f"chat_{self.room_name}"
 
-        await self.channel_layer.group_add(
-            self.room_group_name,
-            self.channel_name
-        )
-
+        await self.channel_layer.group_add(self.room_group_name, self.channel_name)
         await self.accept()
+        print(f" WebSocket Connected to: {self.room_group_name}")
 
     async def disconnect(self, close_code):
-        await self.channel_layer.group_discard(
-            self.room_group_name,
-            self.channel_name
-        )
+        """Handles WebSocket disconnection"""
+        await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
+        print(f" WebSocket Disconnected from: {self.room_group_name}")
+
+    async def mark_as_read(self, event):
+        """Handles marking messages as read"""
+        message_id = event["message_id"]
+
+        # Send read status to the frontend
+        await self.send(text_data=json.dumps({
+            "type": "message_read",
+            "message_id": message_id
+        }))
 
     async def receive(self, text_data):
+        """Handles incoming WebSocket messages"""
         data = json.loads(text_data)
-        message = data['message']
-        username = data['username']
+        event_type = data.get("type")
+        username = data.get("username")
+        content = data.get("content", "")
+        media_urls = data.get("media_urls", [])
+        message_id = data.get("message_id", None)
 
+        if event_type == "chat_typing":
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    "type": "chat_typing",
+                    "sender": self.scope["user"].username,
+                }
+            )
+        elif event_type == "chat_stop_typing":
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    "type": "chat_stop_typing",
+                    "sender": self.scope["user"].username,
+                }
+            )
+
+        if data.get("type") == "mark_as_read":
+            message = await database_sync_to_async(Message.objects.get)(id=message_id)
+            message.is_read = True
+            await database_sync_to_async(message.save)()
+
+        # Validate user and conversation
         user = await sync_to_async(CustomUser.objects.get)(username=username)
         conversation = await sync_to_async(Conversation.objects.get)(id=self.room_name)
+
+        # Save the message in the database
         new_message = await sync_to_async(Message.objects.create)(
-            sender=user, content=message, conversation=conversation
+            sender=user, content=content, conversation=conversation
         )
 
-        if "media" in data:
-            for file_data in data["media"]:  # `media` should be a list
-                file_content = base64.b64decode(file_data["content"])
-                file_name = f"chat_media/{username.username}_{conversation.id}_{file_data['filename']}"
+        # Save media files
+        for url in media_urls:
+            await sync_to_async(MessageMedia.objects.create)(
+                message=new_message,
+                file=url  # Assuming the frontend sends file URLs after upload
+            )
 
-                media_instance = await sync_to_async(MessageMedia.objects.create)(
-                    content=message
-                )
-                media_instance.file.save(file_name, ContentFile(file_content))
+        # Broadcast message to the WebSocket group
+        await self.channel_layer.group_send(
+            self.room_group_name,
+            {
+                "type": "chat_message",
+                "message_id": new_message.id,
+                "message": new_message.content,
+                "media_urls": media_urls,
+                "sender": user.username,
+                "timestamp": str(new_message.timestamp),
+                "type": "mark_as_read",
+                "message_id": new_message.id
 
-            await self.channel_layer.group_send(
-                f"chat_{conversation.id}",
-                {
-                    "type": "chat_message",
-                    "message": message.content if message.content else None,
-                    "media_urls": [media.file.url for media in await sync_to_async(list)(message.media_files.all())],
-                    "sender": username.username,
-                    "timestamp": str(message.timestamp),
             }
         )
 
-    async def chat_message(self, event):
-        message = event['message']
-        username = event['username']
-
+    async def chat_typing(self, event):
+        """Broadcasts typing status to other users"""
         await self.send(text_data=json.dumps({
-            'message': message,
-            'username': username
+            "type": "chat_typing",
+            "sender": event["sender"],
+        }))
+
+    async def chat_stop_typing(self, event):
+        """Broadcasts stop typing status to other users"""
+        await self.send(text_data=json.dumps({
+            "type": "chat_stop_typing",
+            "sender": event["sender"],
+        }))
+
+    async def chat_message(self, event):
+        """Sends a message to WebSocket clients"""
+        await self.send(text_data=json.dumps({
+            "message_id": event["message_id"],
+            "message": event["message"],
+            "media_urls": event["media_urls"],
+            "sender": event["sender"],
+            "timestamp": event["timestamp"],
         }))

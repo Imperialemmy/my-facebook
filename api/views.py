@@ -1,10 +1,12 @@
 from rest_framework import status
+from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated
 from users.models import CustomUser, Work, Education, FriendRequest
+from messaging.models import MessageMedia
 from posts.models import Post, PostImage, PostVideo, Stories, Comments, Like
 from messaging.models import Conversation, Message
-from .serializers import CustomUserSerializer, WorkSerializer, EducationSerializer, FriendRequestSerializer, PostSerializer, StoriesSerializer, CommentsSerializer, LikeSerializer,FriendListSerializer, MessageSerializer, ConversationSerializer
+from .serializers import CustomUserSerializer, WorkSerializer, EducationSerializer, FriendRequestSerializer, PostSerializer, StoriesSerializer, CommentsSerializer, LikeSerializer,FriendListSerializer, MessageSerializer, ConversationSerializer, MessageMediaUploadSerializer
 from rest_framework.response import Response
 from rest_framework.decorators import action, api_view
 from django.shortcuts import get_object_or_404
@@ -212,9 +214,20 @@ class FriendListView(ListAPIView):
 
 
 
+# Chat view for websockets /////////////////////////////////////////////////////////////////////////////////////////////
+class MediaUploadView(APIView):
+    permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]  # Allows file uploads
 
+    def post(self, request, *args, **kwargs):
+        serializer = MessageMediaUploadSerializer(data=request.data, context={'request': request})
 
-# Chat view
+        if serializer.is_valid():
+            serializer.save()  # Saves files and returns their URLs
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 class ConversationView(ModelViewSet):
     serializer_class = ConversationSerializer
     permission_classes = [IsAuthenticated]
