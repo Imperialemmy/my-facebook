@@ -6,7 +6,10 @@ from users.models import CustomUser, Work, Education, FriendRequest
 from messaging.models import MessageMedia
 from posts.models import Post, PostImage, PostVideo, Stories, Comments, Like
 from messaging.models import Conversation, Message
-from .serializers import CustomUserSerializer, WorkSerializer, EducationSerializer, FriendRequestSerializer, PostSerializer, StoriesSerializer, CommentsSerializer, LikeSerializer,FriendListSerializer, MessageSerializer, ConversationSerializer, MessageMediaUploadSerializer
+from watch.models import Video
+from .serializers import CustomUserSerializer, WorkSerializer, EducationSerializer, FriendRequestSerializer, PostSerializer, StoriesSerializer, \
+    CommentsSerializer, LikeSerializer,FriendListSerializer, MessageSerializer, ConversationSerializer, MessageMediaUploadSerializer,\
+    WatchSectionVideoUploadSerializer
 from rest_framework.response import Response
 from rest_framework.decorators import action, api_view
 from django.shortcuts import get_object_or_404
@@ -283,6 +286,24 @@ class MessageHistory(ListAPIView):
 
 
 
+class WatchSectionVideoUploadView(ModelViewSet):
+    queryset = Video.objects.all()
+    serializer_class = WatchSectionVideoUploadSerializer
+    permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
 
 
+    def destroy(self, request, *args, **kwargs):
+        video = self.get_object()
+        if video.user != request.user:
+            return Response({"error": "You can only delete your own videos."}, status=status.HTTP_403_FORBIDDEN)
+
+        video.delete()
+        return Response({"message": "Video deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
+
+    @action(detail=False, methods=["GET"], permission_classes=[IsAuthenticated])
+    def my_videos(self, request):
+        videos = PostVideo.objects.filter(user=request.user)
+        serializer = self.get_serializer(videos, many=True)
+        return Response(serializer.data)
 

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <title>HomePage</title>
-    <link rel="stylesheet" href="{% static 'assets/css/new.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/videos.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
      <script src="https://unpkg.com/lucide@latest"></script>
 </head>
@@ -23,16 +23,11 @@
   <button type="submit"><i data-lucide="search"></i></button>
 </div>
  <ul class="nav-links">
-  <li><a href="#"><i data-lucide="home"></i></a></li>
+  <li><a href="{% url 'home' %}"><i data-lucide="home"></i></a></li>
   <li><a href="#"><i data-lucide="video"></i></a></li>
   <li><a href="#"><i data-lucide="mail"></i></a></li>
   <li><a href="#"><i data-lucide="settings"></i></a></li>
 </ul>
-    <ul class="nav-icons-right">
-    <li><a href="#"><i data-lucide="message-square"></i></a></li>
-    <li><a href="#"><i data-lucide="bell"></i></a></li>
-    <li><a href="#"><i data-lucide="menu"></i></a></li>
-  </ul>
 {#  <div class="nav-button">#}
 {#    <button>Log Out</button>#}
 {#  </div>#}
@@ -45,16 +40,19 @@
    <h4 id="username-display"></h4>
   </div>
   <ul class="sidebar-links">
-  <li><i data-lucide="users"></i> <span style="font-weight: bold;">Friends</span></li>
-    <li><i data-lucide="clock"></i> <span style="font-weight: bold;">Memories</span></li>
-    <li><i data-lucide="bookmark"></i> <span style="font-weight: bold;">Saved</span></li>
-    <li><i data-lucide="layers"></i> <span style="font-weight: bold;">Groups</span></li>
-    <li><i data-lucide="video"></i> <span style="font-weight: bold;">Video</span></li>
-    <li><i data-lucide="shopping-cart"></i> <span style="font-weight: bold;">Marketplace</span></li>
+  <li><i data-lucide="home"></i> <span style="font-weight: bold;">Home</span></li>
+    <li><i data-lucide="tv"></i> <span style="font-weight: bold;">Live</span></li>
+    <li><i data-lucide="video"></i> <span style="font-weight: bold;">Reels</span></li>
+    <li><i data-lucide="film"></i> <span style="font-weight: bold;">Shows</span></li>
+    <li><i data-lucide="compass"></i> <span style="font-weight: bold;">Explore</span></li>
+    <li><i data-lucide="bookmark"></i> <span style="font-weight: bold;">Saved Videos</span></li>
   </ul>
 </div>
     <!-- Main Feed HTML -->
-<div class="main-feed"></div>
+<div class="main-feed">
+    <div id="watch-container"></div>
+</div>
+    
 </div>
 </div>
 </div>
@@ -64,7 +62,7 @@
 <script>var loginpage = "{% url 'login' %}";</script>
 <script src="{% static 'assets/js/sidebar.js' %}"></script>
 <script src="{% static 'assets/js/homepage.js' %}"></script>
-<script src="{% static 'assets/js/posts.js' %}"></script>
+<script src="{% static 'assets/js/watch.js' %}"></script>
 <script src="{% static 'assets/js/comments.js' %}"></script>
 <script src="{% static 'assets/js/preloader.js' %}"></script>
 </html>

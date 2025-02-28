@@ -53,6 +53,8 @@ INSTALLED_APPS = [
     'channels',
     'messaging',
     'watch',
+    'marketplace',
+    'gaming',
 ]
 
 MIDDLEWARE = [

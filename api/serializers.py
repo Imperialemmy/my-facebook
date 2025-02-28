@@ -1,6 +1,7 @@
 from users.models import CustomUser, Work, Education, FriendRequest
 from posts.models import Post, PostImage, PostVideo, Stories, Comments, Like
 from messaging.models import Conversation, Message, MessageMedia
+from watch.models import Video, Like, Comment, Share
 from rest_framework import serializers
 
 
@@ -207,4 +208,18 @@ class ConversationSerializer(serializers.ModelSerializer):
         model = Conversation
         fields = ['id', 'participants', 'messages', 'created_at']
 
+
+class WatchSectionVideoUploadSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(source='user.username', read_only=True)
+    class Meta:
+        model = Video
+        fields = ["id", "user", "username", "description", "video", "created_at", "updated_at"]
+        read_only_fields = ["id", "user", "created_at", "updated_at"]  # User is auto-assigned
+
+    def create(self, validated_data):
+        """Assign the logged-in user and save the video"""
+        request = self.context.get("request")  # Get request context
+        user = request.user  # Get authenticated user
+        video = Video.objects.create(user=user, **validated_data)
+        return video
 
