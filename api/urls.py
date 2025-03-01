@@ -1,7 +1,8 @@
 from django.urls import include, path
 from rest_framework import routers
 from .views import UsersViewSet, WorkViewSet, EducationViewSet, FriendRequestViewSet, PostViewset, StoriesViewSet, \
-    CommentsViewSet, LikeViewSet, FriendListView, ConversationView, MessageHistory, MediaUploadView, WatchSectionVideoUploadView
+    CommentsViewSet, LikeViewSet, FriendListView, ConversationView, MessageHistory, MediaUploadView, WatchSectionVideoUploadView, \
+    ListingImageViewSet, ListingViewSet, CategoryViewSet, OfferViewSet, SavedListingViewSet
 from rest_framework_nested import routers
 router = routers.DefaultRouter()
 router.register(r"users", UsersViewSet)
@@ -12,6 +13,11 @@ router.register(r"posts", PostViewset)
 router.register(r'stories',StoriesViewSet)
 router.register(r'conversations',ConversationView,basename='conversations')
 router.register(r'watch',WatchSectionVideoUploadView,basename='watch')
+router.register(r'product-images', ListingImageViewSet, basename='product-images')
+router.register(r'products', ListingViewSet, basename='products')
+router.register(r'product-categories', CategoryViewSet, basename='categories')
+router.register(r'product-offers', OfferViewSet, basename='offers')
+router.register(r'saved-products', SavedListingViewSet, basename='saved-listings')
 # router.register(r'friendslist',FriendListViewSet, basename='friends-list')
 
 

@@ -2,6 +2,8 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated
+
+from marketplace.models import ListingImage, Listing, Category, Offer, SavedListing
 from users.models import CustomUser, Work, Education, FriendRequest
 from messaging.models import MessageMedia
 from posts.models import Post, PostImage, PostVideo, Stories, Comments, Like
@@ -9,7 +11,7 @@ from messaging.models import Conversation, Message
 from watch.models import Video
 from .serializers import CustomUserSerializer, WorkSerializer, EducationSerializer, FriendRequestSerializer, PostSerializer, StoriesSerializer, \
     CommentsSerializer, LikeSerializer,FriendListSerializer, MessageSerializer, ConversationSerializer, MessageMediaUploadSerializer,\
-    WatchSectionVideoUploadSerializer
+    WatchSectionVideoUploadSerializer, ListingImageSerializer, ListingSerializer, CategorySerializer, OfferSerializer, SavedListingSerializer
 from rest_framework.response import Response
 from rest_framework.decorators import action, api_view
 from django.shortcuts import get_object_or_404
@@ -307,3 +309,45 @@ class WatchSectionVideoUploadView(ModelViewSet):
         serializer = self.get_serializer(videos, many=True)
         return Response(serializer.data)
 
+
+
+class ListingImageViewSet(ModelViewSet):
+    queryset = ListingImage.objects.all()
+    serializer_class = ListingImageSerializer
+    permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
+
+    def destroy(self, request, *args, **kwargs):
+        image = self.get_object()
+        if image.user != request.user:
+            return Response({"error": "You can only delete your own images."}, status=status.HTTP_403_FORBIDDEN)
+
+        image.delete()
+        return Response({"message": "Image deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
+
+    @action(detail=False, methods=["GET"], permission_classes=[IsAuthenticated])
+    def my_images(self, request):
+        images = PostImage.objects.filter(user=request.user)
+        serializer = self.get_serializer(images, many=True)
+        return Response(serializer.data)
+
+
+class ListingViewSet(ModelViewSet):
+    queryset = Listing.objects.all()
+    serializer_class = ListingSerializer
+    permission_classes = [IsAuthenticated]
+
+class CategoryViewSet(ModelViewSet):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    permission_classes = [IsAuthenticated]
+
+class OfferViewSet(ModelViewSet):
+    queryset = Offer.objects.all()
+    serializer_class = OfferSerializer
+    permission_classes = [IsAuthenticated]
+
+class SavedListingViewSet(ModelViewSet):
+    queryset = SavedListing.objects.all()
+    serializer_class = SavedListingSerializer
+    permission_classes = [IsAuthenticated]

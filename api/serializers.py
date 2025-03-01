@@ -2,6 +2,7 @@ from users.models import CustomUser, Work, Education, FriendRequest
 from posts.models import Post, PostImage, PostVideo, Stories, Comments, Like
 from messaging.models import Conversation, Message, MessageMedia
 from watch.models import Video, Like, Comment, Share
+from marketplace.models import Category, Listing, ListingImage, Offer, SavedListing
 from rest_framework import serializers
 
 
@@ -223,3 +224,39 @@ class WatchSectionVideoUploadSerializer(serializers.ModelSerializer):
         video = Video.objects.create(user=user, **validated_data)
         return video
 
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = "__all__"
+
+class ListingImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ListingImage
+        fields = ['listing', 'image']
+
+class ListingSerializer(serializers.ModelSerializer):
+    image_ids=serializers.ListField(child=serializers.IntegerField(), write_only=True, required=False)
+    class Meta:
+        model = Listing
+        fields = ['id', 'seller', 'title', 'description', 'price', 'category', 'location', 'created_at', 'is_active']
+        read_only_fields = ['seller', 'created_at', 'is_active']
+
+        def create(self, validated_data):
+            image_ids = validated_data.pop("image_ids", [])
+            listing = Listing.objects.create(**validated_data)
+
+            ListingImage.objects.filter(id__in=image_ids).update(listing=listing)
+
+            return listing
+
+class OfferSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Offer
+        fields = ['id', 'buyer', 'listing', 'offer_price', 'status', 'created_at']
+        read_only_fields = ['buyer', 'created_at', 'status']
+
+class SavedListingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SavedListing
+        fields = ['id', 'user', 'listing']
+        read_only_fields = ['user']
