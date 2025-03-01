@@ -2,7 +2,7 @@ from users.models import CustomUser, Work, Education, FriendRequest
 from posts.models import Post, PostImage, PostVideo, Stories, Comments, Like
 from messaging.models import Conversation, Message, MessageMedia
 from watch.models import Video, Like, Comment, Share
-from marketplace.models import Category, Listing, ListingImage, Offer, SavedListing
+from marketplace.models import Category, Listing, ListingImage, Offer, SavedListing, Order, Refund, Review
 from rest_framework import serializers
 
 
@@ -238,8 +238,8 @@ class ListingSerializer(serializers.ModelSerializer):
     image_ids=serializers.ListField(child=serializers.IntegerField(), write_only=True, required=False)
     class Meta:
         model = Listing
-        fields = ['id', 'seller', 'title', 'description', 'price', 'category', 'location', 'created_at', 'is_active']
-        read_only_fields = ['seller', 'created_at', 'is_active']
+        fields = ['id', 'seller', 'title', 'description', 'price', 'category', 'stock', 'location', 'created_at', 'is_available']
+        read_only_fields = ['seller', 'created_at', 'is_available']
 
         def create(self, validated_data):
             image_ids = validated_data.pop("image_ids", [])
@@ -260,3 +260,29 @@ class SavedListingSerializer(serializers.ModelSerializer):
         model = SavedListing
         fields = ['id', 'user', 'listing']
         read_only_fields = ['user']
+
+class OrderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Order
+        fields = ['id', 'user', 'listing', 'quantity', 'total_price', 'status', 'created_at']
+        read_only_fields = ['user', 'created_at', 'status']
+
+        def validate(self, data):
+            """ Ensure stock is available before creating an order """
+            product = data['listing']
+            quantity = data['quantity']
+            if product.stock < quantity:
+                raise serializers.ValidationError("Not enough stock available.")
+            return data
+
+class RefundSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Refund
+        fields = ['id', 'order', 'reason', 'status', 'created_at']
+        read_only_fields = ['created_at', 'status']
+
+class ReviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Review
+        fields = ['id', 'user', 'product', 'rating', 'comment','created_at']
+        read_only_fields = ['created_at']

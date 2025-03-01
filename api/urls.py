@@ -1,8 +1,10 @@
 from django.urls import include, path
 from rest_framework import routers
 from .views import UsersViewSet, WorkViewSet, EducationViewSet, FriendRequestViewSet, PostViewset, StoriesViewSet, \
-    CommentsViewSet, LikeViewSet, FriendListView, ConversationView, MessageHistory, MediaUploadView, WatchSectionVideoUploadView, \
-    ListingImageViewSet, ListingViewSet, CategoryViewSet, OfferViewSet, SavedListingViewSet
+    CommentsViewSet, LikeViewSet, FriendListView, ConversationView, MessageHistory, MediaUploadView, \
+    WatchSectionVideoUploadView, \
+    ListingImageViewSet, ListingViewSet, CategoryViewSet, OfferViewSet, SavedListingViewSet, RefundRequestViewSet, \
+    ReviewViewSet
 from rest_framework_nested import routers
 router = routers.DefaultRouter()
 router.register(r"users", UsersViewSet)
@@ -18,15 +20,23 @@ router.register(r'products', ListingViewSet, basename='products')
 router.register(r'product-categories', CategoryViewSet, basename='categories')
 router.register(r'product-offers', OfferViewSet, basename='offers')
 router.register(r'saved-products', SavedListingViewSet, basename='saved-listings')
+router.register(r'refund-request', RefundRequestViewSet, basename='refunds')
+
 # router.register(r'friendslist',FriendListViewSet, basename='friends-list')
 
 
 
 #Nested routers
+#Posts section nested routers
 comments_router = routers.NestedSimpleRouter(router, r"posts", lookup="post")
 comments_router.register(r"comments", CommentsViewSet, basename="post-comments")
 likes_router = routers.NestedSimpleRouter(router, r"posts", lookup="post")
 likes_router.register(r"likes", LikeViewSet, basename="post-likes")
+
+
+#Marketplace nested routers
+reviews_router = routers.NestedSimpleRouter(router, r'products', lookup='product')  # Use a distinct lookup name
+reviews_router.register(r'reviews', ReviewViewSet, basename='product_reviews')
 
 
 urlpatterns = [

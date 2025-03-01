@@ -1,9 +1,9 @@
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 
-from marketplace.models import ListingImage, Listing, Category, Offer, SavedListing
+from marketplace.models import ListingImage, Listing, Category, Offer, SavedListing, Refund, Review
 from users.models import CustomUser, Work, Education, FriendRequest
 from messaging.models import MessageMedia
 from posts.models import Post, PostImage, PostVideo, Stories, Comments, Like
@@ -11,7 +11,8 @@ from messaging.models import Conversation, Message
 from watch.models import Video
 from .serializers import CustomUserSerializer, WorkSerializer, EducationSerializer, FriendRequestSerializer, PostSerializer, StoriesSerializer, \
     CommentsSerializer, LikeSerializer,FriendListSerializer, MessageSerializer, ConversationSerializer, MessageMediaUploadSerializer,\
-    WatchSectionVideoUploadSerializer, ListingImageSerializer, ListingSerializer, CategorySerializer, OfferSerializer, SavedListingSerializer
+    WatchSectionVideoUploadSerializer, ListingImageSerializer, ListingSerializer, CategorySerializer, OfferSerializer, SavedListingSerializer,\
+    RefundSerializer, ReviewSerializer
 from rest_framework.response import Response
 from rest_framework.decorators import action, api_view
 from django.shortcuts import get_object_or_404
@@ -351,3 +352,47 @@ class SavedListingViewSet(ModelViewSet):
     queryset = SavedListing.objects.all()
     serializer_class = SavedListingSerializer
     permission_classes = [IsAuthenticated]
+
+class RefundRequestViewSet(ModelViewSet):
+    queryset = Refund.objects.all()
+    serializer_class = RefundSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        """ Automatically set the user when creating a refund request """
+        serializer.save(user=self.request.user)
+
+    @action(detail=True, methods=['post'], permission_classes=[IsAdminUser])
+    def approve(self, request, pk=None):
+        """ Approve a refund request """
+        refund = self.get_object()
+        refund.approve()
+        return Response({"message": "Refund request approved."})
+
+    @action(detail=True, methods=['post'], permission_classes=[IsAdminUser])
+    def reject(self, request, pk=None):
+        """ Reject a refund request """
+        refund = self.get_object()
+        refund.reject()
+        return Response({"message": "Refund request rejected."})
+
+
+class ReviewViewSet(ModelViewSet): #api/products/product_pk/reviews
+    serializer_class = ReviewSerializer
+    permission_classes = [IsAuthenticated]
+    def get_queryset(self):
+        return Review.objects.filter(recipe=self.kwargs['product_pk'])
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        product_pk = self.kwargs['product_pk']
+
+        try:
+            product = Listing.objects.get(pk=product_pk)
+        except Listing.DoesNotExist:
+            return Response({"error": "Product not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer.save(product=product, user=request.user)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
