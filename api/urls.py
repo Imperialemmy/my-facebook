@@ -18,7 +18,7 @@ router.register(r'watch',WatchSectionVideoUploadView,basename='watch')
 router.register(r'product-images', ListingImageViewSet, basename='product-images')
 router.register(r'products', ListingViewSet, basename='products')
 router.register(r'product-categories', CategoryViewSet, basename='categories')
-router.register(r'product-offers', OfferViewSet, basename='offers')
+router.register(r'my-product-offers', OfferViewSet, basename='offers')
 router.register(r'saved-products', SavedListingViewSet, basename='saved-listings')
 router.register(r'refund-request', RefundRequestViewSet, basename='refunds')
 

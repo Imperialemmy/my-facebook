@@ -70,6 +70,7 @@ class Order(models.Model):
         default='pending'
     )
     created_at = models.DateTimeField(auto_now_add=True)
+    is_paid = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
         """ Reduce stock when an order is placed. """
@@ -81,6 +82,26 @@ class Order(models.Model):
             else:
                 raise ValueError("Not enough stock available")
         super().save(*args, **kwargs)
+
+    def paid(self):
+        """ Mark the order as paid """
+        self.is_paid = True
+        self.save()
+
+    def cancel_order(self):
+        """ Cancel the order and increase stock """
+        self.status = "canceled"
+        self.listing.stock += self.quantity
+        self.listing.update_availability()
+        self.listing.save()
+        self.save()
+
+    def complete_order(self):
+        """ Mark the order as completed """
+        if self.status == "shipped" and self.is_paid == True:
+            self.status = "completed"
+        self.save()
+
 
 
 class Refund(models.Model):

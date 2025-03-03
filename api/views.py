@@ -14,7 +14,7 @@ from .serializers import CustomUserSerializer, WorkSerializer, EducationSerializ
     WatchSectionVideoUploadSerializer, ListingImageSerializer, ListingSerializer, CategorySerializer, OfferSerializer, SavedListingSerializer,\
     RefundSerializer, ReviewSerializer
 from rest_framework.response import Response
-from rest_framework.decorators import action, api_view
+from rest_framework.decorators import action, api_view, permission_classes
 from django.shortcuts import get_object_or_404
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from django_filters.rest_framework import DjangoFilterBackend
@@ -338,15 +338,41 @@ class ListingViewSet(ModelViewSet):
     serializer_class = ListingSerializer
     permission_classes = [IsAuthenticated]
 
+    def destroy(self, request, *args, **kwargs):
+        listing = self.get_object()
+        if listing.user != request.user:
+            return Response({"error": "You can only delete your own listings."}, status=status.HTTP_403_FORBIDDEN)
+
+        listing.delete()
+        return Response({"message": "Listing deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
+
 class CategoryViewSet(ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAdminUser]
 
 class OfferViewSet(ModelViewSet):
-    queryset = Offer.objects.all()
     serializer_class = OfferSerializer
     permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        if permission_classes([IsAdminUser]):
+            return Offer.objects.all().order_by('created_at')
+        return Offer.objects.filter(buyer=self.request.user).order_by('created_at')
+
+    @action(detail=True, methods=['get'], permission_classes=[IsAdminUser])
+    def approve(self, request, pk=None):
+        """Allow admins to approve role requests"""
+        try:
+            role_request = Offer.objects.get(pk=pk, approved=False)
+            role_request.approved = True
+            role_request.user.role = role_request.requested_role  # Update user role
+            role_request.user.save()
+            role_request.save()
+            return Response({"success": f"{role_request.user.username} is now a {role_request.requested_role}."})
+        except Offer.DoesNotExist:
+            return Response({"error": "Invalid request."}, status=400)
+
 
 class SavedListingViewSet(ModelViewSet):
     queryset = SavedListing.objects.all()

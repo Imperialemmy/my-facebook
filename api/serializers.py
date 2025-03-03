@@ -236,24 +236,41 @@ class ListingImageSerializer(serializers.ModelSerializer):
 
 class ListingSerializer(serializers.ModelSerializer):
     image_ids=serializers.ListField(child=serializers.IntegerField(), write_only=True, required=False)
+    category = serializers.StringRelatedField()
     class Meta:
         model = Listing
-        fields = ['id', 'seller', 'title', 'description', 'price', 'category', 'stock', 'location', 'created_at', 'is_available']
-        read_only_fields = ['seller', 'created_at', 'is_available']
+        fields = ['id', 'seller', 'title', 'description', 'image_ids', 'price', 'category', 'stock', 'location', 'created_at', 'is_available']
+        read_only_fields = ['seller','created_at', 'is_available']
 
-        def create(self, validated_data):
-            image_ids = validated_data.pop("image_ids", [])
-            listing = Listing.objects.create(**validated_data)
+    def create(self, validated_data):
+        request = self.context.get("request")
+        image_ids = validated_data.pop("image_ids", [])
+        user = request.user
+        listing = Listing.objects.create(seller=user, **validated_data)
+        if image_ids:
+            images = ListingImage.objects.filter(id__in=image_ids)
+            listing.images.add(*images)  # Assuming a ManyToMany relationship
+        return listing
 
-            ListingImage.objects.filter(id__in=image_ids).update(listing=listing)
-
-            return listing
 
 class OfferSerializer(serializers.ModelSerializer):
     class Meta:
         model = Offer
         fields = ['id', 'buyer', 'listing', 'offer_price', 'status', 'created_at']
         read_only_fields = ['buyer', 'created_at', 'status']
+
+    def create(self, validated_data):
+        listing = Listing.objects.create(buyer=self.context['request'].user, **validated_data)
+        return listing
+
+    def validate(self, attrs):
+        request = self.context["request"]
+        listing = attrs.get("listing")  # Assuming Offer has a `listing` ForeignKey
+
+        if listing.seller == request.user:
+            raise serializers.ValidationError("You can't make an offer on your own listing.")
+
+        return attrs
 
 class SavedListingSerializer(serializers.ModelSerializer):
     class Meta:
